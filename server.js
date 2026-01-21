@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.static("public"));
 app.use("/assets", express.static("assets"));
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 /* ================= HOME (QR TARGET) ================= */
 app.get("/", (req, res) => {
