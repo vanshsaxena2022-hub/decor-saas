@@ -1,63 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
- 
- <style>
-body {
-  font-family: Arial;
-  margin: 0;
-  padding: 20px;
-  background: #fafafa;
-}
-h1, h2 {
-  text-align: center;
-}
-div {
-  background: white;
-  padding: 15px;
-  margin: 15px auto;
-  max-width: 400px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-img {
-  display: block;
-  margin: auto;
-}
-button {
-  padding: 12px;
-  width: 100%;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-</style>
-
   <title>Product</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<img src="/assets/demo-chair.jpg" width="200">
-<h2>Modern Chair</h2>
-<p>₹4,999</p>
-
-<button onclick="location.href='/ar/1'">View It Live</button>
-<br><br>
-
-<button onclick="buy()">Buy Now on WhatsApp</button>
+<div id="product"></div>
 
 <script>
-function buy() {
-  const text = encodeURIComponent(
-    "Hello, I am interested in buying this chair.\nPlease share price & customization options."
-  );
+const p = new URLSearchParams(window.location.search);
+const name = p.get("name");
+const img = p.get("img");
 
-  window.location.href =
-    "https://wa.me/919956960101?text=" + text;
-}
+const msg = `Hi, I want to buy this product:\n${name}\n${img}`;
 
+document.getElementById("product").innerHTML = `
+  <img src="${img}">
+  <h2>${name}</h2>
+
+  <a href="https://wa.me/919999999999?text=${encodeURIComponent(msg)}"
+     class="buy">Buy on WhatsApp</a>
+
+  <button disabled>View in my room (AR)</button>
+`;
 </script>
 
 </body>

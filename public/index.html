@@ -1,54 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-<img src="/logo.png" alt="Shop Logo" width="120" />
-<h1>Demo Decor Store</h1>
-  <style>
-body {
-  font-family: Arial;
-  margin: 0;
-  padding: 20px;
-  background: #fafafa;
-}
-h1, h2 {
-  text-align: center;
-}
-div {
-  background: white;
-  padding: 15px;
-  margin: 15px auto;
-  max-width: 400px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-img {
-  display: block;
-  margin: auto;
-}
-button {
-  padding: 12px;
-  width: 100%;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-</style>  
-  
-  <style>
-    body { font-family: Arial; text-align: center; }
-    .cat { margin: 20px; padding: 20px; border: 1px solid #ddd; cursor: pointer; }
-  </style>
+  <title>Decor Store</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<img src="/assets/demo-chair.jpg" width="120">
-<h1>Demo Decor Store</h1>
+<div class="logo">
+  <img src="https://via.placeholder.com/120">
+  <h2>Demo Decor Store</h2>
+</div>
 
-<div class="cat" onclick="location.href='/category/chairs'">Chairs</div>
-<div class="cat" onclick="location.href='/category/sofa'">Sofa</div>
-<div class="cat" onclick="location.href='/category/lamp'">Lamps</div>
+<h3>Select Category</h3>
+
+<div class="categories">
+  <a href="products.html?cat=chair">🪑 Chairs</a>
+  <a href="products.html?cat=sofa">🛋 Sofas</a>
+  <a href="products.html?cat=lamp">💡 Lamps</a>
+</div>
 
 </body>
 </html>

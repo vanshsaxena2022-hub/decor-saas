@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decor Shop</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+
+    /* HEADER */
+    .header {
+      background: #fff;
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .logo {
+      max-height: 60px;
+    }
+
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      overflow-x: auto;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .category {
+      padding: 10px 16px;
+      background: #eee;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .category.active {
+      background: #000;
+      color: #fff;
+    }
+
+    /* PRODUCTS */
+    .products {
+      padding: 12px;
+    }
+
+    .product {
+      display: flex;
+      gap: 12px;
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .product img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .product-desc {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .btn-ar {
+      background: #000;
+      color: #fff;
+    }
+
+    .btn-wa {
+      background: #25D366;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="/assets/logo.png" class="logo" alt="Shop Logo"/>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="categories" id="categories"></div>
+
+  <!-- PRODUCTS -->
+  <div class="products" id="products"></div>
+
+  <script>
+    /* =========================
+       MOCK DATA (REPLACE LATER)
+    ========================= */
+
+    const SHOP_PHONE = "919999999999";
+
+    const data = {
+      categories: ["Chairs", "Sofa", "Lamps"],
+      products: [
+        {
+          id: 1,
+          name: "Modern Lounge Chair",
+          category: "Chairs",
+          image: "https://images.unsplash.com/photo-1616627983863-1c7c5e8e1c7c",
+          desc: "Comfortable wooden lounge chair.",
+          ar: "https://example.com/ar/chair",
+        },
+        {
+          id: 2,
+          name: "Luxury Sofa Set",
+          category: "Sofa",
+          image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
+          desc: "Premium 3-seater sofa.",
+          ar: "https://example.com/ar/sofa",
+        },
+        {
+          id: 3,
+          name: "Designer Floor Lamp",
+          category: "Lamps",
+          image: "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92",
+          desc: "Modern lighting solution.",
+          ar: "https://example.com/ar/lamp",
+        }
+      ]
+    };
+
+    /* =========================
+       RENDER FUNCTIONS
+    ========================= */
+
+    const categoriesEl = document.getElementById("categories");
+    const productsEl = document.getElementById("products");
+
+    let activeCategory = data.categories[0];
+
+    function renderCategories() {
+      categoriesEl.innerHTML = "";
+      data.categories.forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "category" + (cat === activeCategory ? " active" : "");
+        div.innerText = cat;
+        div.onclick = () => {
+          activeCategory = cat;
+          renderCategories();
+          renderProducts();
+        };
+        categoriesEl.appendChild(div);
+      });
+    }
+
+    function renderProducts() {
+      productsEl.innerHTML = "";
+      data.products
+        .filter(p => p.category === activeCategory)
+        .forEach(p => {
+          const waMsg = encodeURIComponent(
+            `Hi 👋\nI'm interested in this product:\n\n🪑 ${p.name}\n📂 Category: ${p.category}\n\nPlease share price & customization details.`
+          );
+
+          const div = document.createElement("div");
+          div.className = "product";
+          div.innerHTML = `
+            <img src="${p.image}" />
+            <div class="product-info">
+              <div class="product-title">${p.name}</div>
+              <div class="product-desc">${p.desc}</div>
+              <div class="buttons">
+                <a href="${p.ar}" target="_blank" class="btn btn-ar">👁 View in AR</a>
+                <a href="https://wa.me/${SHOP_PHONE}?text=${waMsg}" target="_blank" class="btn btn-wa">💬 Buy</a>
+              </div>
+            </div>
+          `;
+          productsEl.appendChild(div);
+        });
+    }
+
+    renderCategories();
+    renderProducts();
+  </script>
+
+</body>
+</html>

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -72,6 +73,54 @@ app.get("/get-qr", async (req, res) => {
   }
 });
 
+// ================= SHOP DATA API =================
+app.get("/api/shop/:shop_id", async (req, res) => {
+  try {
+    const { shop_id } = req.params;
+
+    // Get shop
+    const shop = await pool.query(
+      "SELECT id, name, phone, logo_url FROM shops WHERE id=$1",
+      [shop_id]
+    );
+
+    if (!shop.rows.length) {
+      return res.status(404).json({ error: "Shop not found" });
+    }
+
+    // Get products
+    const products = await pool.query(
+      `SELECT id, name, description, category, image_url, ar_url
+       FROM products
+       WHERE shop_id=$1 AND is_active=true`,
+      [shop_id]
+    );
+
+    const categories = [
+      ...new Set(products.rows.map(p => p.category))
+    ];
+
+    res.json({
+      shop: shop.rows[0],
+      categories,
+      products: products.rows
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const pool = require("./db");
+
+app.get("/test-db", async (req, res) => {
+  try {
+    const r = await pool.query("SELECT NOW()");
+    res.json(r.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 
 /* ================= START ================= */
