@@ -1,25 +1,29 @@
 require("dotenv").config();
+
 const express = require("express");
-const cors = require("cors");
 const path = require("path");
-const QRCode = require("qrcode");
 
 const app = express();
+
+app.use(express.json());
+
+// 🔥 THIS IS THE KEY LINE
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/__static-test", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "shop.html"));
+});
+
+
 
 app.get("/health", (req, res) => {
   res.json({ status: "LIVE" });
 });
 
-app.use(cors());
-app.use(express.static("public"));
-app.use("/assets", express.static("assets"));
 
 const PORT = process.env.PORT || 4000;
 
 /* ================= HOME (QR TARGET) ================= */
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
 
 /* ================= CATEGORY ================= */
 app.get("/category/:name", (req, res) => {
