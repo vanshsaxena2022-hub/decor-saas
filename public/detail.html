@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .gallery img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 10px 0 6px;
+    }
+
+    p {
+      color: #555;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .buy {
+      background: #25D366;
+      color: #000;
+    }
+
+    .ar {
+      background: #000;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+<header style="background:#fff;padding:14px;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:10px;">
+  <img 
+    src="https://via.placeholder.com/60"
+    style="height:40px;width:40px;border-radius:6px;"
+  />
+  <strong>Demo Decor</strong>
+</header>
+
+
+<div class="container">
+  <div id="gallery" class="gallery"></div>
+
+  <h2 id="name">Loading…</h2>
+  <p id="desc"></p>
+
+  <button class="btn buy" onclick="buy()">Buy on WhatsApp</button>
+  <button class="btn ar" onclick="viewAR()">View in AR</button>
+</div>
+
+<script>
+  const API = window.location.origin;
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    document.body.innerHTML = "<h2>Product not found</h2>";
+    throw new Error("Missing product id");
+  }
+
+  let PRODUCT = null;
+
+  fetch(`${API}/api/product/${productId}`)
+    .then(res => res.json())
+    .then(p => {
+      PRODUCT = p;
+
+      document.getElementById("name").innerText = p.name;
+      document.getElementById("desc").innerText = p.description || "";
+
+      const gallery = document.getElementById("gallery");
+      const imgs = p.images && p.images.length ? p.images : [p.image_url];
+
+      imgs.forEach(img => {
+        if (img) {
+          const i = document.createElement("img");
+          i.src = img;
+          gallery.appendChild(i);
+        }
+      });
+    })
+    .catch(() => {
+      document.body.innerHTML = "<h2>Error loading product</h2>";
+    });
+
+   function buy() {
+        const img = PRODUCT.images && PRODUCT.images.length
+         ? PRODUCT.images[0]
+         : PRODUCT.image_url;
+
+      const msg =
+        `Hi 👋
+        I am interested in this product:
+
+        📌 ${PRODUCT.name}
+        🖼️ ${img}
+
+        Please share price & details.`;
+
+          const wa = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+          window.open(wa, "_blank");
+    }
+
+
+function viewAR() {
+  if (!PRODUCT.ar_url) {
+    alert("AR view not available for this product");
+    return;
+  }
+
+  const ua = navigator.userAgent.toLowerCase();
+
+  // iOS (Quick Look)
+  if (ua.includes("iphone") || ua.includes("ipad")) {
+    window.location.href = PRODUCT.ar_url;
+    return;
+  }
+
+  // Android (Scene Viewer)
+  if (ua.includes("android")) {
+    const sceneViewerUrl =
+      `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(PRODUCT.ar_url)}&mode=ar_preferred` +
+      `#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;end;`;
+
+    window.location.href = sceneViewerUrl;
+    return;
+  }
+
+  // Desktop fallback
+  alert("AR is supported on mobile devices only");
+}
+
+</script>
+
+</body>
+</html>

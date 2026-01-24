@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Decor Shop</title>
+  <title>Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
@@ -12,210 +12,223 @@
       background: #f7f7f7;
     }
 
-    /* HEADER */
-    .header {
-      background: #fff;
+    header {
+      background: #ffffff;
       padding: 16px;
       text-align: center;
       border-bottom: 1px solid #ddd;
     }
 
-    .logo {
+    header img {
       max-height: 60px;
     }
 
-    /* CATEGORIES */
-    .categories {
+    header h2 {
+      margin: 10px 0 0;
+    }
+
+    #categories {
       display: flex;
-      gap: 12px;
-      padding: 12px;
       overflow-x: auto;
+      padding: 10px;
       background: #fff;
+      gap: 10px;
       border-bottom: 1px solid #ddd;
     }
 
-    .category {
-      padding: 10px 16px;
-      background: #eee;
+    .cat {
+      padding: 8px 14px;
       border-radius: 20px;
+      background: #eee;
       cursor: pointer;
       white-space: nowrap;
-      font-size: 14px;
     }
 
-    .category.active {
+    .cat.active {
       background: #000;
       color: #fff;
     }
 
-    /* PRODUCTS */
-    .products {
-      padding: 12px;
+    #products {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
     }
 
-    .product {
-      display: flex;
-      gap: 12px;
+    .card {
       background: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .product img {
-      width: 100px;
-      height: 100px;
+    .card img {
+      width: 100%;
+      height: 140px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
-    .product-info {
-      flex: 1;
-    }
-
-    .product-title {
+    .card h3 {
       font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 6px;
+      margin: 8px 0 4px;
     }
 
-    .product-desc {
+    .card p {
       font-size: 13px;
       color: #555;
-      margin-bottom: 10px;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 8px;
+      margin: 0 0 8px;
     }
 
     .btn {
-      flex: 1;
-      padding: 10px;
-      font-size: 14px;
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border: none;
       border-radius: 6px;
-      text-align: center;
-      text-decoration: none;
+      cursor: pointer;
       font-weight: bold;
     }
 
-    .btn-ar {
+    .buy {
+      background: #25D366;
+      color: #000;
+    }
+
+    .ar {
       background: #000;
       color: #fff;
     }
 
-    .btn-wa {
-      background: #25D366;
-      color: #fff;
+    .center {
+      text-align: center;
+      padding: 40px;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <img src="/assets/logo.png" class="logo" alt="Shop Logo"/>
+
+<header style="display:flex;align-items:center;gap:12px;">
+  <img 
+    src="https://via.placeholder.com/80" 
+    id="logo"
+    style="height:48px;width:48px;border-radius:8px;object-fit:cover;"
+  />
+  <div>
+    <h2 id="shopName" style="margin:0;">Demo Decor</h2>
+    <small style="color:#666">Visualize before you buy</small>
   </div>
+</header>
 
-  <!-- CATEGORIES -->
-  <div class="categories" id="categories"></div>
 
-  <!-- PRODUCTS -->
-  <div class="products" id="products"></div>
 
-  <script>
-    /* =========================
-       MOCK DATA (REPLACE LATER)
-    ========================= */
+<div id="categories"></div>
 
-    const SHOP_PHONE = "919999999999";
+<div id="products" class="center">Loading products…</div>
 
-    const data = {
-      categories: ["Chairs", "Sofa", "Lamps"],
-      products: [
-        {
-          id: 1,
-          name: "Modern Lounge Chair",
-          category: "Chairs",
-          image: "https://images.unsplash.com/photo-1616627983863-1c7c5e8e1c7c",
-          desc: "Comfortable wooden lounge chair.",
-          ar: "https://example.com/ar/chair",
-        },
-        {
-          id: 2,
-          name: "Luxury Sofa Set",
-          category: "Sofa",
-          image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
-          desc: "Premium 3-seater sofa.",
-          ar: "https://example.com/ar/sofa",
-        },
-        {
-          id: 3,
-          name: "Designer Floor Lamp",
-          category: "Lamps",
-          image: "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92",
-          desc: "Modern lighting solution.",
-          ar: "https://example.com/ar/lamp",
-        }
-      ]
-    };
+<script>
 
-    /* =========================
-       RENDER FUNCTIONS
-    ========================= */
+function openDetail(id) {
+  window.location.href = "/detail.html?id=" + id;
+}
 
-    const categoriesEl = document.getElementById("categories");
-    const productsEl = document.getElementById("products");
+function buyNow(id) {
+  window.location.href = "/detail.html?id=" + id + "&buy=true";
+}
 
-    let activeCategory = data.categories[0];
+function viewAR(url) {
+  if (!url) {
+    alert("AR view not available for this product");
+    return;
+  }
+  window.open(url, "_blank");
+}
 
-    function renderCategories() {
-      categoriesEl.innerHTML = "";
-      data.categories.forEach(cat => {
-        const div = document.createElement("div");
-        div.className = "category" + (cat === activeCategory ? " active" : "");
-        div.innerText = cat;
-        div.onclick = () => {
-          activeCategory = cat;
-          renderCategories();
-          renderProducts();
-        };
-        categoriesEl.appendChild(div);
+
+  // ------------------ CONFIG ------------------
+  const API_BASE = window.location.origin;
+
+  const params = new URLSearchParams(window.location.search);
+  const shopId = params.get("shop");
+
+  if (!shopId) {
+    document.body.innerHTML = "<h2 style='text-align:center;margin-top:40px'>Shop ID missing in URL</h2>";
+    throw new Error("Shop ID missing");
+  }
+
+  // ------------------ LOAD PRODUCTS ------------------
+  fetch(`${API_BASE}/api/products?shop=${shopId}`)
+    .then(res => res.json())
+    .then(products => {
+      if (!Array.isArray(products) || products.length === 0) {
+        document.getElementById("products").innerHTML = "<p>No products found</p>";
+        return;
+      }
+
+      // Set shop name (first product's shop name if available)
+      document.getElementById("shopName").innerText = "Our Collection";
+
+      // Categories
+      const cats = [...new Set(products.map(p => p.category).filter(Boolean))];
+      const catBox = document.getElementById("categories");
+
+      catBox.innerHTML = `<div class="cat active" onclick="filter('all')">All</div>`;
+      cats.forEach(c => {
+        catBox.innerHTML += `<div class="cat" onclick="filter('${c}')">${c}</div>`;
       });
-    }
 
-    function renderProducts() {
-      productsEl.innerHTML = "";
-      data.products
-        .filter(p => p.category === activeCategory)
-        .forEach(p => {
-          const waMsg = encodeURIComponent(
-            `Hi 👋\nI'm interested in this product:\n\n🪑 ${p.name}\n📂 Category: ${p.category}\n\nPlease share price & customization details.`
-          );
+      window.ALL_PRODUCTS = products;
+      render(products);
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("products").innerHTML = "<p>Error loading products</p>";
+    });
 
-          const div = document.createElement("div");
-          div.className = "product";
-          div.innerHTML = `
-            <img src="${p.image}" />
-            <div class="product-info">
-              <div class="product-title">${p.name}</div>
-              <div class="product-desc">${p.desc}</div>
-              <div class="buttons">
-                <a href="${p.ar}" target="_blank" class="btn btn-ar">👁 View in AR</a>
-                <a href="https://wa.me/${SHOP_PHONE}?text=${waMsg}" target="_blank" class="btn btn-wa">💬 Buy</a>
-              </div>
-            </div>
-          `;
-          productsEl.appendChild(div);
-        });
-    }
+  // ------------------ RENDER ------------------
+  function render(list) {
+    const box = document.getElementById("products");
+    box.innerHTML = "";
 
-    renderCategories();
-    renderProducts();
-  </script>
+    list.forEach(p => {
+      box.innerHTML += `
+        <div class="card" onclick="openDetail('${p.id}')">
+  <img src="${p.image_url || 'https://via.placeholder.com/300'}" />
+  <h3>${p.name}</h3>
+  <p>${p.description || ""}</p>
 
+  <button class="btn buy" onclick="event.stopPropagation(); buyNow('${p.id}')">
+    Buy Now
+  </button>
+
+  ${p.ar_url ? `
+    <button class="btn ar" onclick="event.stopPropagation(); viewAR('${p.ar_url}')">
+      View in AR
+    </button>
+  ` : ""}
+</div>
+
+      `;
+    });
+  }
+
+  // ------------------ FILTER ------------------
+  function filter(cat) {
+    document.querySelectorAll(".cat").forEach(c => c.classList.remove("active"));
+    event.target.classList.add("active");
+
+    if (cat === "all") render(window.ALL_PRODUCTS);
+    else render(window.ALL_PRODUCTS.filter(p => p.category === cat));
+  }
+  
+  // ------------------ BUY NOW ------------------
+function buyNow(productId) {
+  window.location.href = "/buy/" + productId;
+}
+  
+</script>
 </body>
 </html>

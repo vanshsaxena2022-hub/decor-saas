@@ -1,121 +1,20 @@
 require("dotenv").config();
-
 const express = require("express");
+const cors = require("cors");
 const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const pool = require("./db");
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
-
-// 🔥 THIS IS THE KEY LINE
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-app.get("/__static-test", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "shop.html"));
-});
-
-
-
+/* ================= HEALTH ================= */
 app.get("/health", (req, res) => {
-  res.json({ status: "LIVE" });
+  res.json({ status: "LIVE", time: new Date() });
 });
-
-
-const PORT = process.env.PORT || 4000;
-
-/* ================= HOME (QR TARGET) ================= */
-
-/* ================= CATEGORY ================= */
-app.get("/category/:name", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "category.html"));
-});
-
-/* ================= PRODUCT ================= */
-app.get("/product/:id", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "product.html"));
-});
-
-/* ================= AR VIEW ================= */
-app.get("/ar/:id", (req, res) => {
-  res.send(`
-    <html>
-      <body style="font-family:Arial;text-align:center">
-        <h2>View It Live (AR Demo)</h2>
-        <p>This is a demo AR preview</p>
-
-        <model-viewer 
-          src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-          ar 
-          auto-rotate 
-          camera-controls
-          style="width:100%;height:400px">
-        </model-viewer>
-
-        <script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-      </body>
-    </html>
-  `);
-});
-
-
-app.get("/get-qr", async (req, res) => {
-  const url = "http://localhost:4000"; // later replace with live URL
-
-  try {
-    const qr = await QRCode.toDataURL(url);
-    res.send(`
-      <html>
-        <body style="text-align:center;font-family:Arial">
-          <h2>Scan This QR</h2>
-          <img src="${qr}" />
-          <p>${url}</p>
-        </body>
-      </html>
-    `);
-  } catch (e) {
-    res.send("QR generation failed");
-  }
-});
-
-// ================= SHOP DATA API =================
-app.get("/api/shop/:shop_id", async (req, res) => {
-  try {
-    const { shop_id } = req.params;
-
-    // Get shop
-    const shop = await pool.query(
-      "SELECT id, name, phone, logo_url FROM shops WHERE id=$1",
-      [shop_id]
-    );
-
-    if (!shop.rows.length) {
-      return res.status(404).json({ error: "Shop not found" });
-    }
-
-    // Get products
-    const products = await pool.query(
-      `SELECT id, name, description, category, image_url, ar_url
-       FROM products
-       WHERE shop_id=$1 AND is_active=true`,
-      [shop_id]
-    );
-
-    const categories = [
-      ...new Set(products.rows.map(p => p.category))
-    ];
-
-    res.json({
-      shop: shop.rows[0],
-      categories,
-      products: products.rows
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-const pool = require("./db");
 
 app.get("/test-db", async (req, res) => {
   try {
@@ -126,8 +25,106 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
+/* ================= SHOP CREATE ================= */
+app.post("/shop/create", async (req, res) => {
+  try {
+    const { name, phone, logo_url } = req.body;
+    const id = uuidv4();
+
+    await pool.query(
+      `INSERT INTO shops(id,name,phone,logo_url)
+       VALUES($1,$2,$3,$4)`,
+      [id, name, phone, logo_url || null]
+    );
+
+    res.json({ id, name });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ================= ADD PRODUCT ================= */
+app.post("/admin/product/add", async (req, res) => {
+  try {
+    const { shop_id, name, category, image_url, ar_url } = req.body;
+    const id = uuidv4();
+
+    await pool.query(
+      `INSERT INTO products(id,shop_id,name,category,image_url,ar_url)
+       VALUES($1,$2,$3,$4,$5,$6)`,
+      [id, shop_id, name, category, image_url, ar_url]
+    );
+
+    res.json({ success: true, product_id: id });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ================= PUBLIC PRODUCTS ================= */
+app.get("/api/products", async (req, res) => {
+  try {
+    const shopId = req.query.shop;
+    if (!shopId) {
+      return res.status(400).json({ error: "shop id missing" });
+    }
+
+    const q = await pool.query(
+      `SELECT id, name, description, category, image_url, ar_url
+       FROM products
+       WHERE shop_id = $1 AND is_active = true
+       ORDER BY created_at DESC`,
+      [shopId]
+    );
+
+    res.json(q.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "failed to load products" });
+  }
+});
+
+app.get("/buy/:product_id", async (req, res) => {
+  try {
+    const { product_id } = req.params;
+
+    const q = await pool.query(`
+      SELECT p.name, p.image_url, s.name AS shop_name, s.phone
+      FROM products p
+      JOIN shops s ON p.shop_id = s.id
+      WHERE p.id = $1
+    `, [product_id]);
+
+    if (!q.rows.length) return res.send("Invalid product");
+
+    const p = q.rows[0];
+
+    const msg = `
+Hi, I'm interested in buying this product:
+
+🛒 Product: ${p.name}
+🏪 Shop: ${p.shop_name}
+📸 Image: ${p.image_url}
+
+Please share price & delivery details.
+    `;
+
+    const wa = `https://wa.me/91${p.phone}?text=${encodeURIComponent(msg)}`;
+    res.redirect(wa);
+
+  } catch (e) {
+    res.send("Something went wrong");
+  }
+});
+
+
+/* ================= ROOT ================= */
+app.get("/", (req, res) => {
+  res.json({ status: "Decor SaaS backend running" });
+});
 
 /* ================= START ================= */
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log("Decor SaaS running on port", PORT);
+  console.log("🚀 Server running on port", PORT);
 });

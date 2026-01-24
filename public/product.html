@@ -2,28 +2,45 @@
 <html>
 <head>
   <title>Product</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    img { width: 100%; max-width: 400px; border-radius: 10px; }
+    button {
+      padding: 12px 18px;
+      margin-right: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-<div id="product"></div>
+<h2 id="name">Loading...</h2>
+<img id="img" />
+<p id="desc"></p>
+
+<button id="arBtn">View in AR</button>
+<button id="buyBtn">Buy Now</button>
 
 <script>
-const p = new URLSearchParams(window.location.search);
-const name = p.get("name");
-const img = p.get("img");
+const id = new URLSearchParams(window.location.search).get("id");
 
-const msg = `Hi, I want to buy this product:\n${name}\n${img}`;
+fetch("/api/product/" + id)
+  .then(r => r.json())
+  .then(p => {
+    document.getElementById("name").innerText = p.name;
+    document.getElementById("desc").innerText = p.description || "";
+    document.getElementById("img").src = p.image_url;
 
-document.getElementById("product").innerHTML = `
-  <img src="${img}">
-  <h2>${name}</h2>
+    document.getElementById("arBtn").onclick = () => {
+      if (p.ar_url) window.open(p.ar_url, "_blank");
+      else alert("AR not available");
+    };
 
-  <a href="https://wa.me/919999999999?text=${encodeURIComponent(msg)}"
-     class="buy">Buy on WhatsApp</a>
-
-  <button disabled>View in my room (AR)</button>
-`;
+    document.getElementById("buyBtn").onclick = () => {
+      window.location.href = "/buy/" + p.id;
+    };
+  });
 </script>
 
 </body>
