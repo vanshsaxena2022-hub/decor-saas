@@ -70,17 +70,27 @@ app.get("/api/products", async (req, res) => {
     }
 
     const q = await pool.query(
-      `SELECT id, name, description, category, image_url, ar_url
-       FROM products
-       WHERE shop_id = $1 AND is_active = true
-       ORDER BY created_at DESC`,
+      `
+      SELECT 
+        id,
+        name,
+        description,
+        category,
+        price,
+        image_url,
+        image_urls,
+        ar_url
+      FROM products
+      WHERE shop_id = $1
+      ORDER BY created_at DESC
+      `,
       [shopId]
     );
 
     res.json(q.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "failed to load products" });
+    console.error("🔥 PRODUCTS QUERY ERROR 🔥", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
