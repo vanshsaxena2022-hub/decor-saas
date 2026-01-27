@@ -1,0 +1,35 @@
+<h2>Update Shop Info</h2>
+
+<input id="name" placeholder="Shop name"><br><br>
+<input id="phone" placeholder="Phone number"><br><br>
+<input id="logo" placeholder="Logo URL"><br><br>
+
+<button onclick="save()">Save</button>
+
+<script>
+const token = localStorage.token;
+const shopId = JSON.parse(atob(token.split('.')[1])).shop_id;
+
+fetch("/api/shop/" + shopId)
+  .then(r=>r.json())
+  .then(s=>{
+    name.value=s.name;
+    phone.value=s.phone;
+    logo.value=s.logo_url;
+  });
+
+function save() {
+  fetch("/api/admin/update-shop", {
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      Authorization: token
+    },
+    body:JSON.stringify({
+      name: name.value,
+      phone: phone.value,
+      logo_url: logo.value
+    })
+  }).then(()=>alert("Updated"));
+}
+</script>

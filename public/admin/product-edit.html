@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Edit Product</title>
+
+<style>
+body {
+  font-family: Arial;
+  background:#f4f6f8;
+  margin:0;
+}
+
+.box {
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+  max-width:600px;
+}
+
+input, textarea {
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  margin-bottom:14px;
+}
+
+button {
+  padding:12px 18px;
+  background:#000;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Edit Product</h2>
+
+<div class="box">
+  <label>Name</label>
+  <input id="name">
+
+  <label>Category</label>
+  <input id="category">
+
+  <label>Description</label>
+  <textarea id="desc"></textarea>
+
+  <label>AR Model (optional)</label>
+  <input id="ar">
+
+  <button onclick="save()">Save Changes</button>
+</div>
+
+<script>
+const id = new URLSearchParams(location.search).get("id");
+const token = localStorage.token;
+
+fetch("/api/product/" + id)
+  .then(r => r.json())
+  .then(p => {
+    name.value = p.name;
+    category.value = p.category;
+    desc.value = p.description || "";
+    ar.value = p.ar_model || "";
+  });
+
+function save() {
+  fetch("/api/admin/product/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      name: name.value,
+      category: category.value,
+      description: desc.value,
+      ar_model: ar.value || null
+    })
+  })
+  .then(() => {
+    alert("Product updated");
+    location.href = "products.html";
+  });
+}
+</script>
+
+</body>
+</html>

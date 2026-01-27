@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin:0;
+  font-family:Arial;
+  background:#f4f6f8;
+}
+
+header {
+  background:#000;
+  color:#fff;
+  padding:16px;
+  text-align:center;
+}
+
+.container {
+  padding:20px;
+  max-width:600px;
+  margin:auto;
+}
+
+.card {
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  margin-bottom:20px;
+}
+
+h3 {
+  margin-top:0;
+}
+
+input, textarea {
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+
+textarea {
+  min-height:80px;
+}
+
+button {
+  width:100%;
+  padding:14px;
+  background:#000;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Admin Dashboard</h2>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Add Product</h3>
+
+    <input id="name" placeholder="Product name">
+    <input id="category" placeholder="Category (Chair, Sofa…)">
+    <input id="price" placeholder="Price">
+    <textarea id="description" placeholder="Product description"></textarea>
+
+    <label>Upload Images</label><br><br>
+    <input type="file" id="images" multiple>
+
+    <br><br>
+    <button onclick="add()">Add Product</button>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.token;
+if (!token) location.href = "login.html";
+
+function add() {
+  const fd = new FormData();
+  fd.append("name", name.value);
+  fd.append("category", category.value);
+  fd.append("price", price.value);
+  fd.append("description", description.value);
+
+  for (const f of images.files) {
+    fd.append("images", f);
+  }
+
+  fetch("/api/admin/product", {
+    method:"POST",
+    headers:{ Authorization: token },
+    body: fd
+  })
+  .then(r => r.json())
+  .then(() => {
+    alert("Product added");
+    name.value = category.value = price.value = description.value = "";
+    images.value = "";
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<h2>Products</h2>
+<div id="list" style="display:grid;gap:14px"></div>
+
+<script>
+const token = localStorage.getItem("token");
+const shop = localStorage.getItem("shop_id");
+
+fetch(`/api/products?shop=${shop}`)
+.then(r=>r.json())
+.then(p=>{
+  list.innerHTML="";
+  p.forEach(x=>{
+    const img = (x.image_urls && x.image_urls[0]) || "";
+    list.innerHTML += `
+    <div style="
+      background:#fff;
+      padding:14px;
+      border-radius:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 2px 6px rgba(0,0,0,.08)
+    ">
+      <img src="${img}" style="width:70px;height:70px;object-fit:cover;border-radius:10px">
+      <div><b>${x.category}</b></div>
+      <div>
+        <button onclick="edit('${x.id}')">Edit</button>
+        <button onclick="del('${x.id}')" style="color:red">Delete</button>
+      </div>
+    </div>`;
+  });
+});
+
+function edit(id){
+  location.href="/admin/edit-product.html?id="+id;
+}
+
+function del(id){
+  if(!confirm("Delete product?"))return;
+  fetch("/api/admin/product/"+id,{
+    method:"DELETE",
+    headers:{Authorization:token}
+  }).then(()=>location.reload());
+}
+</script>

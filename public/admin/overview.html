@@ -1,0 +1,39 @@
+<h2>Overview</h2>
+
+<div style="
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px;
+">
+
+<div class="card">Total Products<br><b id="p">0</b></div>
+<div class="card">Visitors<br><b id="v">0</b></div>
+<div class="card">WhatsApp Leads<br><b id="w">0</b></div>
+
+</div>
+
+<style>
+.card{
+background:#fff;
+padding:18px;
+border-radius:14px;
+box-shadow:0 2px 6px rgba(0,0,0,.08);
+font-size:14px;
+}
+.card b{font-size:26px}
+</style>
+
+<script>
+const shop = localStorage.getItem("shop_id");
+
+fetch(`/api/products?shop=${shop}`)
+.then(r=>r.json())
+.then(p=>p.length && (pElem=document.getElementById("p")).innerText=p.length);
+
+fetch(`/api/analytics?shop=${shop}&range=7`)
+.then(r=>r.json())
+.then(a=>{
+  v.innerText=a.visitors;
+  w.innerText=a.whatsapp;
+});
+</script>

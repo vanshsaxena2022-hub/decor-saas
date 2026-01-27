@@ -1,0 +1,26 @@
+<h2>Analytics</h2>
+<canvas id="chart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx=document.getElementById("chart");
+
+const labels=[...Array(7)].map((_,i)=>`Day ${i+1}`);
+const data=new Array(7).fill(0);
+
+new Chart(ctx,{
+type:"line",
+data:{
+labels,
+datasets:[{
+label:"Visitors",
+data,
+borderColor:"#25D366",
+tension:.4
+}]
+},
+options:{
+scales:{y:{beginAtZero:true}}
+}
+});
+</script>

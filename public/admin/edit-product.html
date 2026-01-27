@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Product</title>
+
+<style>
+body { font-family:Arial;background:#f6f6f6;padding:20px }
+form {
+  max-width:500px;
+  background:#fff;
+  margin:auto;
+  padding:20px;
+  border-radius:12px;
+}
+input, textarea {
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+button {
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#000;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<form id="form">
+  <h2>Edit Product</h2>
+
+  <input name="name" placeholder="Product Name" required>
+  <input name="category" placeholder="Category" required>
+  <textarea name="description" placeholder="Description"></textarea>
+  <input name="ar_model" placeholder="AR Model URL (optional)">
+  <button>Save Changes</button>
+</form>
+
+<script>
+const token = localStorage.getItem("token");
+const id = new URLSearchParams(location.search).get("id");
+if (!id) {
+  document.body.innerHTML = "<h2>Invalid product</h2>";
+  throw "";
+}
+
+/* LOAD PRODUCT */
+fetch("/api/product/" + id)
+  .then(r => r.json())
+  .then(p => {
+    form.name.value = p.name || "";
+    form.category.value = p.category || "";
+    form.description.value = p.description || "";
+    form.ar_model.value = p.ar_model || "";
+  });
+
+/* SAVE PRODUCT */
+form.onsubmit = async e => {
+  e.preventDefault();
+
+  const body = {
+    name: form.name.value.trim(),
+    category: form.category.value.trim(),
+    description: form.description.value.trim(),
+    ar_model: form.ar_model.value.trim()
+  };
+
+  if (!body.name || !body.category) {
+    alert("Name and category required");
+    return;
+  }
+
+  const res = await fetch("/api/admin/product/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (res.ok) {
+    alert("Product updated");
+    location.href = "/admin/products.html";
+  } else {
+    alert("Update failed");
+  }
+};
+</script>
+
+</body>
+</html>
