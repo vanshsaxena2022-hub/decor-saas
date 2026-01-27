@@ -5,49 +5,35 @@
 <title>Admin Panel</title>
 
 <style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#f6f6f6;
+body{margin:0;font-family:Arial;background:#f6f6f6}
+.sidebar{
+  position:fixed;left:0;top:0;
+  width:170px;height:100vh;
+  background:#000;padding-top:20px
 }
-
-/* Sidebar */
-.sidebar {
-  position:fixed;
-  left:0; top:0;
-  width:160px;
-  height:100vh;
-  background:#000;
-  padding-top:18px;
+.sidebar a{
+  display:block;padding:12px 16px;
+  color:#bbb;text-decoration:none;font-size:14px
 }
-
-.sidebar a {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 16px;
-  color:#aaa;
-  text-decoration:none;
-  font-size:13px;
-  cursor:pointer;
+.sidebar a.active,.sidebar a:hover{
+  background:#111;color:#fff;
+  border-left:4px solid #25D366
 }
-
-.sidebar a.active,
-.sidebar a:hover {
-  background:#111;
-  color:#fff;
-  border-left:3px solid #25D366;
-}
-
-/* Main content */
-.main {
-  margin-left:160px;
-  padding:20px 24px;
-}
+.main{margin-left:170px;padding:22px}
 </style>
 </head>
 
 <body>
+
+<script>
+const token = sessionStorage.getItem("token");
+const shopId = sessionStorage.getItem("shop_id");
+
+// 🚨 ABSOLUTE BLOCK
+if (!token || !shopId) {
+  location.replace("/admin/login.html");
+}
+</script>
 
 <div class="sidebar">
   <a onclick="loadPage('overview')" id="overview">🏠 Overview</a>
@@ -55,24 +41,28 @@ body {
   <a onclick="loadPage('add-product')" id="add-product">➕ Add Product</a>
   <a onclick="loadPage('analytics')" id="analytics">📊 Analytics</a>
   <a onclick="loadPage('business')" id="business">🏪 Business</a>
-  <a onclick="loadPage('contact')" id="contact">☎ Contact</a>
+  <a onclick="logout()">🚪 Logout</a>
 </div>
 
 <div class="main" id="content">Loading…</div>
 
 <script>
-function loadPage(page) {
-  document.querySelectorAll(".sidebar a")
-    .forEach(a => a.classList.remove("active"));
-
-  document.getElementById(page)?.classList.add("active");
-
-  fetch(page + ".html")
-    .then(r => r.text())
-    .then(html => content.innerHTML = html);
+function loadPage(page){
+  fetch("/admin/" + page + ".html")
+    .then(r=>r.text())
+    .then(html=>{
+      content.innerHTML = html;
+      document.querySelectorAll(".sidebar a")
+        .forEach(a=>a.classList.remove("active"));
+      document.getElementById(page)?.classList.add("active");
+    });
 }
 
-/* default */
+function logout(){
+  sessionStorage.clear();
+  location.replace("/admin/login.html");
+}
+
 loadPage("overview");
 </script>
 

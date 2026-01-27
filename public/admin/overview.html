@@ -1,39 +1,59 @@
 <h2>Overview</h2>
 
-<div style="
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:16px;
-">
+<div class="grid">
+  <div class="card">
+    Total Products
+    <div class="num" id="totalProducts">0</div>
+  </div>
 
-<div class="card">Total Products<br><b id="p">0</b></div>
-<div class="card">Visitors<br><b id="v">0</b></div>
-<div class="card">WhatsApp Leads<br><b id="w">0</b></div>
+  <div class="card">
+    Visitors (7 days)
+    <div class="num" id="visitors">0</div>
+  </div>
 
+  <div class="card">
+    WhatsApp Enquiries
+    <div class="num" id="whatsapp">0</div>
+  </div>
 </div>
 
 <style>
-.card{
-background:#fff;
-padding:18px;
-border-radius:14px;
-box-shadow:0 2px 6px rgba(0,0,0,.08);
-font-size:14px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
-.card b{font-size:26px}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  font-size: 14px;
+}
+
+.num {
+  margin-top: 8px;
+  font-size: 28px;
+  font-weight: bold;
+}
 </style>
 
 <script>
-const shop = localStorage.getItem("shop_id");
+const shopId = localStorage.getItem("shop_id");
 
-fetch(`/api/products?shop=${shop}`)
-.then(r=>r.json())
-.then(p=>p.length && (pElem=document.getElementById("p")).innerText=p.length);
+/* Total products */
+fetch("/api/products?shop=" + shopId)
+  .then(r => r.json())
+  .then(products => {
+    document.getElementById("totalProducts").innerText = products.length;
+  });
 
-fetch(`/api/analytics?shop=${shop}&range=7`)
-.then(r=>r.json())
-.then(a=>{
-  v.innerText=a.visitors;
-  w.innerText=a.whatsapp;
-});
+/* Analytics */
+fetch("/api/analytics?shop=" + shopId + "&range=7")
+  .then(r => r.json())
+  .then(a => {
+    document.getElementById("visitors").innerText = a.visitors;
+    document.getElementById("whatsapp").innerText = a.whatsapp;
+  });
 </script>

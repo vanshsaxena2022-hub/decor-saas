@@ -32,26 +32,41 @@ function auth(req, res, next) {
 /* ===================== ADMIN LOGIN ===================== */
 /* NO SIGNUP, NO PASSWORD CHANGE */
 app.post("/api/admin/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const q = await pool.query(
-    "SELECT * FROM admins WHERE email=$1",
-    [email]
-  );
+    const q = await pool.query(
+      "SELECT id, email, password, shop_id FROM admins WHERE email=$1",
+      [email]
+    );
 
-  if (!q.rows.length) return res.sendStatus(401);
+    if (!q.rows.length) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-  const admin = q.rows[0];
-  const ok = await bcrypt.compare(password, admin.password);
-  if (!ok) return res.sendStatus(401);
+    const admin = q.rows[0];
 
-  const token = jwt.sign(
-    { shop_id: admin.shop_id, role: admin.role },
-    JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+    const ok = await bcrypt.compare(password, admin.password);
+    if (!ok) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-  res.json({ token, shop_id: admin.shop_id });
+    const token = jwt.sign(
+      { shop_id: admin.shop_id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // 🔑 CRITICAL: SEND shop_id ALSO
+    res.json({
+      token,
+      shop_id: admin.shop_id
+    });
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 /* ===================== FILE UPLOAD (IMAGES ONLY) ===================== */

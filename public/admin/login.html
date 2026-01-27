@@ -3,57 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body {
+body{
   margin:0;
-  font-family:Arial;
-  background:#f4f6f8;
+  height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:100vh;
+  background:#f4f4f4;
+  font-family:Arial;
 }
-
-.card {
+.box{
   background:#fff;
   padding:30px;
   width:320px;
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.1);
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
-
-h2 {
-  text-align:center;
-  margin-bottom:20px;
-}
-
-input {
+h2{text-align:center}
+input{
   width:100%;
   padding:12px;
-  margin-bottom:12px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  font-size:15px;
+  margin-bottom:14px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
-
-button {
+button{
   width:100%;
-  padding:12px;
+  padding:14px;
   background:#000;
   color:#fff;
   border:none;
-  border-radius:8px;
+  border-radius:12px;
   font-size:16px;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="box">
   <h2>Admin Login</h2>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -61,27 +50,33 @@ button {
 </div>
 
 <script>
-function login() {
-  fetch("/api/admin/login", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      email: email.value,
-      password: password.value
-    })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (!d.token) {
-      alert("Invalid credentials");
-      return;
-    }
-    localStorage.token = d.token;
+async function login(){
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
-    // 🔥 IMPORTANT FIX
-    location.href = "layout.html";
+  const res = await fetch("/api/admin/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
   });
+
+  if(!res.ok){
+    alert("Invalid login");
+    return;
+  }
+
+  const data = await res.json();
+
+  // 🔒 SINGLE SOURCE OF TRUTH
+  sessionStorage.clear();
+  sessionStorage.setItem("token", data.token);
+  sessionStorage.setItem("shop_id", data.shop_id);
+
+  location.replace("/admin/layout.html");
 }
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 </script>
 
 </body>
